@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Desk extends Model
 {
@@ -15,7 +16,7 @@ class Desk extends Model
         return $this->belongsTo(Room::class);
     }
 
-    public function bookings(){
+    public function bookings(): MorphMany{
         return $this->morphMany(Booking::class, 'bookable');
     }
 }
