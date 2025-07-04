@@ -3,7 +3,6 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -12,12 +11,14 @@ class InviteUserMail extends Mailable
 {
     use Queueable, SerializesModels;
 
+    public string $token;
+
     /**
      * Create a new message instance.
      */
-    public function __construct(public string $token)
+    public function __construct(string $token)
     {
-        //
+        $this->token = $token;
     }
 
     /**
@@ -40,9 +41,16 @@ class InviteUserMail extends Mailable
         return [];
     }
 
-    public function build()
+    public function build(): self
     {
-        return $this->view('mail.invite')
-            ->with(['token' => $this->token]);
+        // Generate the invite link dynamically from the route
+        $inviteUrl = route('register', ['token' => $this->token]);
+
+        return $this
+            ->subject('You’ve been invited to join the app!')
+            ->view('mail.invite')
+            ->with([
+                'inviteUrl' => $inviteUrl,
+            ]);
     }
 }

@@ -13,12 +13,17 @@ class RegisterController extends Controller
     {
         $token = $request->query('token');
 
-        $invite = Invitation::where('token', $token)
+        // Look up the invitation by token
+        $invitation = Invitation::where('token', $token)
             ->where('used', false)
             ->where('expires_at', '>', now())
             ->firstOrFail();
 
-        return view('auth.register', ['email' => $invite->email, 'token' => $token]);
+        return view('mail.register', [
+            'token' => $token,
+            'submitRoute' => route('invite.submit'),
+            'email' => $invitation->email,  // ✅ NOW email is defined
+        ]);
     }
 
     public function register(Request $request)
@@ -46,6 +51,6 @@ class RegisterController extends Controller
 
         auth()->login($user);
 
-        return redirect('/admin');
+        return redirect('/');
     }
 }
