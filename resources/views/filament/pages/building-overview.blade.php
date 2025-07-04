@@ -88,29 +88,35 @@
                             $isAdminOrManager = $this->isAdminOrManager();
                             $isRoomAvailable = $this->isRoomAvailableForBooking($room->id);
                         @endphp
+
                         <div class="relative">
                             <div wire:click="selectRoom({{ $room->id }})" style="cursor: pointer;">
-                                <x-room-card :room="$room" />
+                                <x-room-card :room="$room">
+                                    <div class="mt-2">
+
+                                    </div>
+                                </x-room-card>
                                 @if($filterDate)
-                                    <div class="mt-2 text-sm text-gray-600">
+                                    <div class="text-sm text-gray-600">
                                         Available desks: {{ $this->getRoomAvailabilityCount($room->id) }}
                                         @if($isRoomCompletelyBooked)
                                             <span class="text-red-600 font-semibold"> - Room Fully Booked</span>
                                         @endif
                                     </div>
                                 @endif
+                                @if($isAdminOrManager && $filterDate && $isRoomAvailable)
+                                    <div class="mt-2">
+                                        <button
+                                            wire:click.stop="bookRoom({{ $room->id }})"
+                                            class="w-full bg-primary-500 hover:bg-purple-600 text-white font-medium py-2 px-4 rounded transition-colors duration-200"
+                                        >
+                                            Book Entire Room
+                                        </button>
+                                    </div>
+                                @endif
                             </div>
 
-                            @if($isAdminOrManager && $filterDate && $isRoomAvailable)
-                                <div class="mt-2">
-                                    <button
-                                        wire:click="bookRoom({{ $room->id }})"
-                                        class="w-full bg-primary-500 hover:bg-purple-600 text-white font-medium py-2 px-4 rounded transition-colors duration-200"
-                                    >
-                                        Book Entire Room
-                                    </button>
-                                </div>
-                            @endif
+
                         </div>
                     @endforeach
                 </div>
@@ -134,7 +140,7 @@
                 </div>
 
                 <div class="p-4 bg-gray-100 rounded"
-                     style="width: 800px;
+                     style="width: 100%;
                      height: 500px;
                      margin-top: 10px;
                      display: grid;

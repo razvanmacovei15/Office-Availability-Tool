@@ -6,6 +6,7 @@ use App\Filament\Resources\RoomResource\Pages;
 use App\Filament\Resources\RoomResource\RelationManagers;
 use App\Models\Building;
 use App\Models\Room;
+use App\RoomType;
 use Filament\Forms;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -33,6 +34,10 @@ class RoomResource extends Resource
         return $form
             ->schema([
                 TextInput::make('name')->required(),
+                Select::make('type')->options([
+                    RoomType::NORMAL->value => 'Normal',
+                    RoomType::MEETING_ROOM->value => 'Meeting Room',
+                ]),
 
                 Select::make('building_id')
                     ->label('Building')
@@ -48,6 +53,7 @@ class RoomResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('name')->sortable()->searchable(),
+                TextColumn::make('type')->sortable()->searchable(),
                 TextColumn::make('building.name')->label('Building')->sortable()->searchable(),
                 TextColumn::make('created_at')->dateTime(),
             ])

@@ -6,6 +6,8 @@ use App\Models\Building;
 use App\Models\Room;
 use App\Models\Desk;
 use App\Models\Booking;
+use App\Services\CustomNotificationService;
+use App\Services\FilamentNotificationManager;
 use Filament\Pages\Page;
 use Filament\Notifications\Notification;
 
@@ -18,11 +20,20 @@ class BuildingOverview extends Page
 
     protected static string $view = 'filament.pages.building-overview';
     public $filterDate;
-
     public $step = 1;
     public $selectedBuildingId = null;
     public $selectedRoomId = null;
     public $selectedDeskId = null;
+    private FilamentNotificationManager $notificationService;
+
+    public function mount()
+    {
+        // Initialize the service here
+        $this->notificationService = app(FilamentNotificationManager::class);
+    }
+
+
+
     public function clearFilters()
     {
         $this->filterDate = null;
@@ -77,7 +88,7 @@ class BuildingOverview extends Page
         if (!$this->filterDate) {
             return null;
         }
-        
+
         return Booking::where('user_id', auth()->id())
             ->whereDate('booking_date', $this->filterDate)
             ->first();
@@ -88,12 +99,12 @@ class BuildingOverview extends Page
         if (!$this->filterDate) {
             return null;
         }
-        
+
         $booking = Booking::where('user_id', auth()->id())
             ->where('bookable_type', Desk::class)
             ->whereDate('booking_date', $this->filterDate)
             ->first();
-            
+
         return $booking ? $booking->bookable_id : null;
     }
 
@@ -102,7 +113,7 @@ class BuildingOverview extends Page
         if (!$this->filterDate) {
             return false;
         }
-        
+
         return $this->getUserBookedDeskId() == $deskId;
     }
 
@@ -192,20 +203,18 @@ class BuildingOverview extends Page
     public function bookRoom($roomId)
     {
         if (!$this->isAdminOrManager()) {
-            Notification::make()
-                ->danger()
-                ->title('Access Denied')
-                ->body('Only administrators and managers can book entire rooms.')
-                ->send();
+            $this->notificationService->danger(
+                'Access Denied',
+                'Only administrators and managers can book entire rooms.'
+            );
             return;
         }
 
         if (!$this->filterDate) {
-            Notification::make()
-                ->warning()
-                ->title('Date Required')
-                ->body('Please select a date first')
-                ->send();
+            $this->notificationService->warning(
+                'Date Required',
+                'Please select a date first'
+            );
             return;
         }
 
@@ -302,21 +311,21 @@ class BuildingOverview extends Page
         }
 
         $this->selectedDeskId = $deskId;
-        
-        // Show different notification based on whether it's their own booking or a new selection
-        if ($userBookedDeskId == $deskId) {
-            Notification::make()
-                ->info()
-                ->title('Your Booking Selected')
-                ->body('You have selected your own booking. You can manage it from the sidebar.')
-                ->send();
-        } else {
-            Notification::make()
-                ->success()
-                ->title('Desk Selected')
-                ->body('Desk selected! You can now proceed with booking.')
-                ->send();
-        }
+
+//        // Show different notification based on whether it's their own booking or a new selection
+//        if ($userBookedDeskId == $deskId) {
+//            Notification::make()
+//                ->info()
+//                ->title('Your Booking Selected')
+//                ->body('You have selected your own booking. You can manage it from the sidebar.')
+//                ->send();
+//        } else {
+//            Notification::make()
+//                ->success()
+//                ->title('Desk Selected')
+//                ->body('Desk selected! You can now proceed with booking.')
+//                ->send();
+//        }
     }
 
     public function bookDesk()
@@ -485,5 +494,9 @@ class BuildingOverview extends Page
             ->title('Availability Updated')
             ->body('Availability updated for ' . $this->filterDate)
             ->send();
+    }
+
+    public function isRoomMeetingRoom(Room $room) : bool{
+        return $room->type === 'meeting_room';
     }
 }
