@@ -19,12 +19,12 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Tables\Columns\MorphToColumn;
+use Illuminate\Support\Facades\Auth;
 
 class BookingResource extends Resource
 {
     protected static ?string $model = Booking::class;
     protected static ?string $navigationGroup = 'Admin Tools';
-
     protected static ?string $navigationIcon = 'heroicon-o-book-open';
 
     public static function form(Form $form): Form
@@ -270,5 +270,8 @@ class BookingResource extends Resource
         return $data;
     }
 
+    public static function canViewAny(): bool {
+        return Auth::user()?->hasRole('admin');
+    }
 
 }

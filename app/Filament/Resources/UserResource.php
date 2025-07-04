@@ -100,5 +100,4 @@ class UserResource extends Resource
         return Auth::user()?->hasRole('admin');
     }
 
-
 }

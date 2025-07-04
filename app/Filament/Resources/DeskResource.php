@@ -18,6 +18,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Auth;
 
 class DeskResource extends Resource
 {
@@ -101,5 +102,9 @@ class DeskResource extends Resource
             'create' => Pages\CreateDesk::route('/create'),
             'edit' => Pages\EditDesk::route('/{record}/edit'),
         ];
+    }
+
+    public static function canViewAny(): bool {
+        return Auth::user()?->hasRole('admin');
     }
 }

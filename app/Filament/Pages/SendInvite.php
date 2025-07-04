@@ -16,6 +16,8 @@ class SendInvite extends Page
     protected static ?string $navigationIcon = 'heroicon-o-paper-airplane';
     protected static string $view = 'filament.pages.send-invite';
     protected static ?string $title = 'Send Invitation';
+    protected static ?string $navigationGroup = 'Memberships';
+
 
     public $email = '';
     public $role = '';
